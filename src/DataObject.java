@@ -1,8 +1,7 @@
-import java.io.*;
-import java.util.*;
+import java.io.Serializable;
 
-public class DataObject implements Serializable{
-    protected String message;
+class DataObject implements Serializable{
+    private String message;
 
     DataObject(){
         message = "";

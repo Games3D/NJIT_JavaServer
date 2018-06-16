@@ -1,16 +1,15 @@
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.ObjectStreamClass;
 import java.net.Socket;
 import java.net.SocketException;
 
-public class SocketUtil {
+class SocketUtil {
     private ObjectOutputStream myOutputStream;
     private ObjectInputStream myInputStream;
-    DataObject myObject;
+    private DataObject myObject;
 
-    public SocketUtil(Socket socket) {
+    SocketUtil(Socket socket) {
         if (socket==null)
             return;
 
@@ -38,7 +37,7 @@ public class SocketUtil {
             myObject = (DataObject) myInputStream.readObject();
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
-        } catch (SocketException e) {
+        } catch (SocketException ignored) {
         } catch (IOException e) {
             e.printStackTrace();
         }

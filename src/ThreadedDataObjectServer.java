@@ -1,13 +1,14 @@
-import java.io.*;
-import java.net.*;
+import java.net.ServerSocket;
+import java.net.Socket;
 
-    public class ThreadedDataObjectServer {
+    class ThreadedDataObjectServer {
         public static void main(String[] args ) {
 
         try {
             ServerSocket s = new ServerSocket(3000);//listening
 
-            for (;;) {
+            //noinspection InfiniteLoopStatement
+            while (true) {
                 Socket incoming = s.accept( );//getting a connection
                 new ThreadedDataObjectHandler(incoming).start();//starting a new thread
             }
@@ -19,10 +20,12 @@ import java.net.*;
     }
 
     class ThreadedDataObjectHandler extends Thread {
+        @SuppressWarnings("CanBeFinal")
         private Socket incoming;
+        @SuppressWarnings("FieldCanBeLocal")
         private SocketUtil IO;
 
-        public ThreadedDataObjectHandler(Socket i){
+        ThreadedDataObjectHandler(Socket i){
             incoming = i;
         }
 
@@ -41,7 +44,8 @@ import java.net.*;
             IO.write(auth);
         }
 
-        private String DB_checkUser(String input) {
+        @SuppressWarnings("SameReturnValue")
+        private String DB_checkUser(@SuppressWarnings("unused") String input) {
             //check the DB to see if the user is allowed in and what there role is: -1: no logged in, 1 user, 2 admin
             return "2";
         }

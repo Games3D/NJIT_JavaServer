@@ -1,25 +1,25 @@
-import javax.imageio.ImageIO;
 import javax.swing.*;
-import javax.swing.border.Border;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.io.*;
-import java.net.*;
-import java.util.Scanner;
+import java.io.IOException;
+import java.net.ConnectException;
+import java.net.InetAddress;
+import java.net.Socket;
+import java.net.UnknownHostException;
+import java.util.Objects;
 
-public class Client {
+@SuppressWarnings("deprecation")
+class Client {
 
-    Socket socketToServer;
-    SocketUtil IO;
-    JFrame frame;
-    String CURRENT_USER="";
+    private Socket socketToServer;
+    private SocketUtil IO;
+    private JFrame frame;
+    private String CURRENT_USER="";
 
     public static void main(String[] arg) {
         new Client();
     }
 
-    public Client() {
+    private Client() {
         buildGUI();//builds the frame
 
         makeConnection();//starts the connection
@@ -51,46 +51,43 @@ public class Client {
 
         //making Picture
         System.out.println(this.getClass().getResource("JoshuaMain.jpg"));
-        ImageIcon img = new ImageIcon(getClass().getClassLoader().getResource("JoshuaMain.jpg").getPath());
+        ImageIcon img = new ImageIcon(Objects.requireNonNull(getClass().getClassLoader().getResource("JoshuaMain.jpg")).getPath());
         LoginPanel.add(new JLabel(img));
 
 
         //making submit button
         JButton submit = new JButton("Login");
-        submit.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (!username.getText().isEmpty() && !password.getText().isEmpty()) {
-                    //sending username and password
-                        System.out.println(username.getText() + "," + password.getText());
-                        IO.write(username.getText() + "," + password.getText());
+        submit.addActionListener(e -> {
+            if (!username.getText().isEmpty() && !password.getText().isEmpty()) {
+                //sending username and password
+                    System.out.println(username.getText() + "," + password.getText());
+                    IO.write(username.getText() + "," + password.getText());
 
-                        switch (IO.read()){
-                            case "-1":
-                                CURRENT_USER = "";
-                                JOptionPane.showMessageDialog(null,
-                                        "Not Logged In. Try aging.", "NOT Logged In", JOptionPane.WARNING_MESSAGE);
-                                break;
-                            case "1":
-                                CURRENT_USER = username.getText();
-                                JOptionPane.showMessageDialog(null,
-                                        "Welcome User", "Logged In", JOptionPane.INFORMATION_MESSAGE);
-                                loadGUI_DashBoard(false);
-                                break;
-                            case "2":
-                                CURRENT_USER = username.getText();
-                                JOptionPane.showMessageDialog(null,
-                                        "Welcome Admin", "Logged In", JOptionPane.INFORMATION_MESSAGE);
-                                loadGUI_SelectAccount();
-                                break;
-                            default:
-                                JOptionPane.showMessageDialog(null,
-                                        "Unknown reply from server", "ERROR", JOptionPane.ERROR_MESSAGE);
-                        }
-                }else {
-                    JOptionPane.showMessageDialog(null,
-                            "username or password is empty, try again", "WARNING", JOptionPane.WARNING_MESSAGE);
-                }
+                    switch (IO.read()){
+                        case "-1":
+                            CURRENT_USER = "";
+                            JOptionPane.showMessageDialog(null,
+                                    "Not Logged In. Try aging.", "NOT Logged In", JOptionPane.WARNING_MESSAGE);
+                            break;
+                        case "1":
+                            CURRENT_USER = username.getText();
+                            JOptionPane.showMessageDialog(null,
+                                    "Welcome User", "Logged In", JOptionPane.INFORMATION_MESSAGE);
+                            loadGUI_DashBoard(false);
+                            break;
+                        case "2":
+                            CURRENT_USER = username.getText();
+                            JOptionPane.showMessageDialog(null,
+                                    "Welcome Admin", "Logged In", JOptionPane.INFORMATION_MESSAGE);
+                            loadGUI_AdminDashboard();
+                            break;
+                        default:
+                            JOptionPane.showMessageDialog(null,
+                                    "Unknown reply from server", "ERROR", JOptionPane.ERROR_MESSAGE);
+                    }
+            }else {
+                JOptionPane.showMessageDialog(null,
+                        "username or password is empty, try again", "WARNING", JOptionPane.WARNING_MESSAGE);
             }
         });
         LoginPanel.add(submit, BorderLayout.SOUTH);
@@ -134,7 +131,7 @@ public class Client {
         userFor.setBorder(BorderFactory.createBevelBorder(4));
         info.add(userFor);
 
-        JPanel infoin = new JPanel();
+        @SuppressWarnings("SpellCheckingInspection") JPanel infoin = new JPanel();
         infoin.add(new JLabel("First Name:"));
         JTextField FirstName = new JTextField(30);
         infoin.add(FirstName);
@@ -148,13 +145,14 @@ public class Client {
 
         infoin = new JPanel();
         infoin.add(new JLabel("DOB:"));
-        JTextField DOB = new JTextField(10);//TODO make a jdatepicker
+        JTextField DOB = new JTextField(10);//TODO make a j date picker
         infoin.add(DOB);
         info.add(infoin);
 
         infoin = new JPanel();
         infoin.add(new JLabel("Home Phone:"));
         JTextField Home_Phone = new JTextField(12);
+        //noinspection SpellCheckingInspection
         Home_Phone.setToolTipText("xxx-xxx-xxxx");
         infoin.add(Home_Phone);
         info.add(infoin);
@@ -162,6 +160,7 @@ public class Client {
         infoin = new JPanel();
         infoin.add(new JLabel("Cell Phone:"));
         JTextField Cell_Phone = new JTextField(12);
+        //noinspection SpellCheckingInspection
         Cell_Phone.setToolTipText("xxx-xxx-xxxx");
         infoin.add(Cell_Phone);
         info.add(infoin);
@@ -188,22 +187,12 @@ public class Client {
         JPanel logoutP = new JPanel();
         if (EDIT){//back for admin
             JButton back = new JButton("Back");
-            back.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    loadGUI_SelectAccount();
-                }
-            });
+            back.addActionListener(e -> loadGUI_AdminDashboard());
             logoutP.add(back);
         }
 
         JButton logout = new JButton("Log out");
-        logout.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                loadGUI_Password();
-            }
-        });
+        logout.addActionListener(e -> loadGUI_Password());
         logoutP.add(logout);
 
         Panel.add(logoutP, BorderLayout.SOUTH);
@@ -212,11 +201,12 @@ public class Client {
         frame.pack();
     }
 
-    private void getUsers(JComboBox<String> username) {
+    @SuppressWarnings("EmptyMethod")
+    private void getUsers(@SuppressWarnings("unused") JComboBox<String> username) {
         //TODO
     }
 
-    private void loadGUI_SelectAccount() {
+    private void loadGUI_AdminDashboard() {
         if (frame==null)//checks to make sure the frame is there
             return;
 
@@ -232,22 +222,14 @@ public class Client {
 
         //editing info for the select user button
         JButton edit = new JButton("Edit Users");
-        edit.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                loadGUI_DashBoard(true);
-            }
-        });
+        edit.addActionListener(e -> loadGUI_DashBoard(true));
         contents.add(edit);
 
 
         //add user button
         JButton add = new JButton("Add User");
-        add.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                //TODO
-            }
+        add.addActionListener(e -> {
+            //TODO
         });
         contents.add(add);
 
@@ -266,12 +248,7 @@ public class Client {
         //Log out
         JPanel logoutP = new JPanel();
         JButton logout = new JButton("Log out");
-        logout.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                loadGUI_Password();
-            }
-        });
+        logout.addActionListener(e -> loadGUI_Password());
         logoutP.add(logout);
 
         Panel.add(logoutP, BorderLayout.SOUTH);
@@ -293,8 +270,9 @@ public class Client {
     }
 
     private void makeConnection(){
+        //noinspection SpellCheckingInspection
         try{
-            DataObject myObject = new DataObject();//new sending object
+            @SuppressWarnings("unused") DataObject myObject = new DataObject();//new sending object
             socketToServer = new Socket("127.0.0.1", 3000);//making the connection
             //afsaccess2.njit.edu
 
@@ -304,7 +282,7 @@ public class Client {
             String host="UNKNOWN";
             try {
                 host =InetAddress.getByName("www.example.com").getHostAddress();
-            } catch (UnknownHostException e) {}
+            } catch (UnknownHostException ignored) {}
             IO.write("Connecting to Server from: "+host);
 
             //reading the password request
@@ -314,7 +292,7 @@ public class Client {
                     loadGUI_Password();//loads the password content
                 else{
                     JOptionPane.showMessageDialog(null,
-                            "Loging request expected but not recieved","ERROR",JOptionPane.ERROR_MESSAGE);
+                            "Logging request expected but not received","ERROR",JOptionPane.ERROR_MESSAGE);
                 }
             } catch (UnknownHostException e1) {
             e1.printStackTrace();
@@ -330,14 +308,18 @@ public class Client {
         }
     }
 
-    protected void finalize() throws Throwable {
+    public void finalize() {
         try {
-            socketToServer.close();
-            IO.close();
-            frame.setVisible(false);
-            frame.dispose();
-        } finally {
-            super.finalize();
+            try {
+                socketToServer.close();
+                IO.close();
+                frame.setVisible(false);
+                frame.dispose();
+            } finally {
+                super.finalize();
+            }
+        } catch (Throwable throwable) {
+            throwable.printStackTrace();
         }
     }
 }
