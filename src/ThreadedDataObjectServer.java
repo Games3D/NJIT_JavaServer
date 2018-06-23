@@ -89,7 +89,7 @@ class ThreadedDataObjectServer {
             ResultSet rs = null;
             try {
                 stmt=conn.createStatement();
-                rs=stmt.executeQuery("SELECT * FROM NJIT_CS602.user WHERE userName='"+input+"';");
+                rs=stmt.executeQuery("SELECT * FROM jp834.user WHERE userName='"+input+"';");
 
                 rs.next();
 
@@ -123,7 +123,7 @@ class ThreadedDataObjectServer {
             ResultSet rs = null;
             try {
                 stmt=conn.createStatement();
-                rs=stmt.executeQuery("SELECT userName FROM NJIT_CS602.user;");
+                rs=stmt.executeQuery("SELECT userName FROM jp834.user;");
 
                 while(rs.next()){
                     users+=rs.getString("userName")+",";
@@ -145,7 +145,7 @@ class ThreadedDataObjectServer {
             Statement stmt = null;
             try {
                 stmt=conn.createStatement();
-                int answer=stmt.executeUpdate("DELETE from NJIT_CS602.user WHERE userName='"+input+"'");
+                int answer=stmt.executeUpdate("DELETE from jp834.user WHERE userName='"+input+"'");
                 IO.write(answer+"");
             } catch (SQLException e) {
                 IO.write("-1");
@@ -162,7 +162,7 @@ class ThreadedDataObjectServer {
             Statement stmt = null;
             try {
                 stmt=conn.createStatement();
-                int answer=stmt.executeUpdate("INSERT INTO NJIT_CS602.user (userName, password, isAdmin) VALUES ('"+input+"', 'password123', 'no');");
+                int answer=stmt.executeUpdate("INSERT INTO jp834.user (userName, password, isAdmin) VALUES ("+input+", 'no');");
                 IO.write(answer+"");
             } catch (SQLException e) {
                 IO.write("-1");
@@ -194,21 +194,46 @@ class ThreadedDataObjectServer {
             }
         }
 
+//        private void connectToDB() {
+//            final String connectionUrl = "jdbc:mysql://sql1.njit.edu/jp834?autoReconnect=true";
+//            //final String connectionUrl = "jdbc:mysql://games3dcreations.ddns.net:3306/NJIT_CS602?autoReconnect=true";
+//
+//            try {
+//                Class.forName("com.mysql.jdbc.Driver").newInstance();
+//            } catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
+//                e.printStackTrace();
+//            }
+//
+//            try {
+//                conn = DriverManager.getConnection(connectionUrl,"jp834", "despot77");
+//                //conn = DriverManager.getConnection(connectionUrl,"NJIT_CS602", "NJIT_CS602");
+//            } catch (SQLException e) {
+//                e.printStackTrace();
+//            }
+//        }
+
         private void connectToDB() {
-            final String connectionUrl = "jdbc:mysql://games3dcreations.ddns.net:3306/NJIT_CS602?autoReconnect=true";
+            String url = "sql1.njit.edu";
+            String ucid = "jp834";	//your ucid
+            String dbpassword = "despot77";	//your MySQL password
 
+            System.out.println("Loading driver . . .");
             try {
-                Class.forName("com.mysql.jdbc.Driver").newInstance();
-            } catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
+                Class.forName("org.gjt.mm.mysql.Driver").newInstance();
+            } catch (Exception e) {
+                System.err.println("Unable to load driver.");
                 e.printStackTrace();
             }
-
-            try {
-                conn = DriverManager.getConnection(connectionUrl,"NJIT_CS602", "NJIT_CS602");
-            } catch (SQLException e) {
-                e.printStackTrace();
+    		System.out.println("Establishing connection . . . ");
+    		try {
+                conn = DriverManager.getConnection("jdbc:mysql://"+url+"/"+ucid+"?user="+ucid+"&password="+dbpassword);
+                System.out.println("Connection established.");
+            } catch (SQLException E) {
+                System.out.println("SQLException: " + E.getMessage());
+                System.out.println("SQLState:     " + E.getSQLState());
+                System.out.println("VendorError:  " + E.getErrorCode());
             }
-        }
+    }
 
         private void CMD_login(String input) {
             //check the DB to see if the user is allowed in and what there role is: -1: no logged in, 1 user, 2 admin
@@ -219,7 +244,7 @@ class ThreadedDataObjectServer {
             ResultSet rs = null;
             try {
                 stmt=conn.createStatement();
-                rs=stmt.executeQuery("SELECT isAdmin FROM NJIT_CS602.user where " +
+                rs=stmt.executeQuery("SELECT isAdmin FROM jp834.user where " +
                         "userName='"+INPUT[0]+"' and " +
                         "password='"+INPUT[1]+"';");
 

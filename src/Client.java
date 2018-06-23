@@ -17,7 +17,7 @@ class Client {
     private JTextField password, FirstName, LastName, DOB, Home_Phone, Cell_Phone, Email;
     private JLabel userTest;
     private JComboBox<String> username, admin;
-    private boolean isAdmin=false;
+   // private boolean isAdmin=false;
 
     public static void main(String[] arg) {
         new Client();
@@ -48,7 +48,7 @@ class Client {
         InputPanel.add(username);
 
         InputPanel.add(new JLabel("PASSWORD:"));
-        JTextField password = new JTextField(20);
+        JPasswordField password = new JPasswordField(20);
         InputPanel.add(password);
 
         LoginPanel.add(InputPanel, BorderLayout.NORTH);
@@ -79,13 +79,13 @@ class Client {
                             JOptionPane.showMessageDialog(null,
                                     "Welcome User", "Logged In", JOptionPane.INFORMATION_MESSAGE);
                             loadGUI_DashBoard(false);
-                            isAdmin=false;
+                            //isAdmin=false;
                             break;
                         case "2":
                             CURRENT_USER = username.getText();
                             JOptionPane.showMessageDialog(null,
                                     "Welcome Admin", "Logged In", JOptionPane.INFORMATION_MESSAGE);
-                            isAdmin=true;
+                            //isAdmin=true;
                             loadGUI_AdminDashboard();
                             break;
                         default:
@@ -113,7 +113,7 @@ class Client {
         BorderLayout borderLayout = new BorderLayout();
         Panel.setLayout(borderLayout);
 
-        if (isAdmin) {
+        if (EDIT) {
             //top search field
             JPanel InputPanel = new JPanel();
             GridLayout gridLayout = new GridLayout(1,3);
@@ -143,7 +143,7 @@ class Client {
         info.add(userFor);
 
         JPanel infoin = new JPanel();
-        if (isAdmin) {
+        if (EDIT) {
             infoin.add(new JLabel("Is Admin:"));
             admin = new JComboBox<>();
             admin.addItem("yes");
@@ -200,7 +200,7 @@ class Client {
         info.add(infoin);
 
         if (!EDIT) {
-            password.setEnabled(false);
+            password.setEditable(false);
             FirstName.setEditable(false);
             LastName.setEditable(false);
             DOB.setEditable(false);
@@ -286,7 +286,7 @@ class Client {
 
         try {
             String a =
-                    "EDIT_USER`UPDATE NJIT_CS602.user SET " +
+                    "EDIT_USER`UPDATE jp834.user SET " +
                             (!password.equals(" ")? ("password='"+password+"', "): "") +
                             (!firstNameText.equals(" ")? ("firstName='"+firstNameText+"', "): "") +
                             (!lastNameText.equals(" ")? ("lastName='"+lastNameText+"', "): "") +
@@ -352,8 +352,11 @@ class Client {
         inner.add(new JLabel("Enter new user's username:"));
         JTextField newUser = new JTextField(30);
         inner.add(newUser);
+        inner.add(new JLabel("Enter new user's password:"));
+        JPasswordField newPassword = new JPasswordField(30);
+        inner.add(newPassword);
         JButton add = new JButton("Add User");
-        add.addActionListener(e -> addUser(newUser.getText()));
+        add.addActionListener(e -> addUser(newUser.getText(), newPassword.getText()));
         inner.add(add);
         contents.add(inner);
 
@@ -381,17 +384,17 @@ class Client {
         frame.pack();
     }
 
-    private void addUser(String user) {
-        if (user.equals("")){
-            JOptionPane.showMessageDialog(null,"The username has been has not been entered. Please try again", "Added", JOptionPane.WARNING_MESSAGE);
+    private void addUser(String user, String password) {
+        if (user.equals("") || password.equals("")){
+            JOptionPane.showMessageDialog(null,"The username or password has been has not been entered. Please try again", "Added", JOptionPane.WARNING_MESSAGE);
             return;
         }
 
-        IO.write("ADD_USERS`"+user);
+        IO.write("ADD_USERS`'"+user+"','"+password+"'");
 
         //tests to see if the user was deleted
         if (IO.read().equals("1"))
-            JOptionPane.showMessageDialog(null,"The user ("+user+") has been added. default password is 'password123'.", "Added", JOptionPane.INFORMATION_MESSAGE);
+            JOptionPane.showMessageDialog(null,"The user ("+user+") has been added.", "Added", JOptionPane.INFORMATION_MESSAGE);
         else
             JOptionPane.showMessageDialog(null,"The user ("+user+") has NOT been added.", "Added", JOptionPane.ERROR_MESSAGE);
 
@@ -433,7 +436,7 @@ class Client {
         //noinspection SpellCheckingInspection
         try{
             @SuppressWarnings("unused") DataObject myObject = new DataObject();//new sending object
-            socketToServer = new Socket("127.0.0.1", 3000);//making the connection
+            socketToServer = new Socket("afsconnect1.njit.edu", 3000);//making the connection
             //afsaccess2.njit.edu
 
             IO = new SocketUtil(socketToServer);//making the input and output
